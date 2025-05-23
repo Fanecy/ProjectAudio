@@ -129,6 +129,11 @@ bool ProjectAudioAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 }
 #endif
 
+juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::createParameterLayout() //Fane:createPrameterLayout
+{
+    return juce::AudioProcessorValueTreeState::ParameterLayout();
+}
+
 void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
@@ -145,19 +150,19 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         buffer.clear (i, 0, buffer.getNumSamples());
 
     auto newDSPOrder = DSP_Order();
-    //尝试pull FIFO
+    //try pull FIFO
     while (dsporderFifo.pull(newDSPOrder))
     {
 
     }
 
-    //若成功pull，则替换dsporder 
+    //once pull replace dsporder 
     if (newDSPOrder != DSP_Order())
     {
         dsporder = newDSPOrder;
     }
 
-    //将dspOrder转换为一系列指针
+    //fill pointers
     DSP_Pointers dspPointers;
 
     for (size_t i = 0; i < dspPointers.size(); i++)
@@ -190,7 +195,7 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
     
-    //process
+    //now process
     auto block = juce::dsp::AudioBlock<float>(buffer);
     auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
@@ -227,6 +232,8 @@ void ProjectAudioAudioProcessor::setStateInformation (const void* data, int size
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..
