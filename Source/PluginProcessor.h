@@ -9,7 +9,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-
 #include <Fifo.h>
 
 //==============================================================================
@@ -73,6 +72,24 @@ public:
     using DSP_Order = std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>; //用类型别名替代后面一坨Array
 
     SimpleMBComp::Fifo<DSP_Order> dsporderFifo; //Fifo
+
+    /*
+      Phaser:
+      Rate: hz
+      Depth(percent): 0 to 1
+      Center Freq: hz
+      Feedback(percent): -1 to 1
+      Mix(percent): 0 to 1
+    */
+
+    //** added pointers for cached parameters above **//
+    juce::AudioParameterFloat* PhaserRateHz = nullptr;
+    juce::AudioParameterFloat* PhaserDepthPercent = nullptr;
+    juce::AudioParameterFloat* PhaserCenterFreqHz = nullptr;
+    juce::AudioParameterFloat* PhaserFeedbackPercet = nullptr;
+    juce::AudioParameterFloat* PhaserMixPercent = nullptr;
+    //** added pointers for cached parameters above **//
+
 
 private:
     DSP_Order dsporder;
