@@ -90,6 +90,23 @@ public:
     juce::AudioParameterFloat* PhaserMixPercent = nullptr;
     //** added pointers for cached parameters above **//
 
+     /*
+      Chorus:
+      Rate: hz
+      Depth(percent): 0 to 1
+      Center Delay: 1 to 100ms
+      Feedback(percent): -1 to 1
+      Mix(percent): 0 to 1
+    */
+
+    //** added pointers for cached parameters above **//
+    juce::AudioParameterFloat* ChorusRateHz = nullptr;
+    juce::AudioParameterFloat* ChorusDepthPercent = nullptr;
+    juce::AudioParameterFloat* ChorusCenterDelayMs = nullptr;
+    juce::AudioParameterFloat* ChorusFeedbackPercet = nullptr;
+    juce::AudioParameterFloat* ChorusMixPercent = nullptr;
+    //** added pointers for cached parameters above **//
+
 
 private:
     DSP_Order dsporder;
