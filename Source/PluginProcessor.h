@@ -63,6 +63,7 @@ public:
         Chorus,
         Overdrive,
         LadderFilter,
+        GeneralFilter,
         END_OF_LIST
     };
 
@@ -132,6 +133,21 @@ public:
     juce::AudioParameterFloat* LadderFilterDrive = nullptr;
     //** added pointers for cached parameters above **//
 
+     /*
+    * general filter:IIRFilter
+    * Mode: Peak,bandpass,notch,allpass,
+    * freq:20hz - 20,000hz in 1hz steps
+    * Q: 0.1 - 10 in 0.05 steps
+    * gain: -24db to +24db in 0.5db increments
+    */
+
+    //** added pointers for cached parameters above **//
+    juce::AudioParameterChoice* GeneralFilterMode = nullptr;
+    juce::AudioParameterFloat* GeneralFilterFreqHz = nullptr;
+    juce::AudioParameterFloat* GeneralFilterQuality = nullptr;
+    juce::AudioParameterFloat* GeneralFilterGain = nullptr;
+     //** added pointers for cached parameters above **//
+
 private:
     DSP_Order dsporder;
 
@@ -160,6 +176,7 @@ private:
     DSP_Choice<juce::dsp::Phaser<float>> phaser;
     DSP_Choice<juce::dsp::Chorus<float>> chorus;
     DSP_Choice<juce::dsp::LadderFilter<float>> overdrive,ladderFilter;
+    DSP_Choice<juce::dsp::IIR::Filter<float>> generalFilter;
 
     using DSP_Pointers = std::array<juce::dsp::ProcessorBase*, static_cast<size_t>(DSP_Option::END_OF_LIST)>;//用别名替代指针数组
     //==============================================================================
