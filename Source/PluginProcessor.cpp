@@ -23,6 +23,9 @@ auto getChorusCenterDelayName() { return juce::String("Chorus Center Delay Ms");
 auto getChorusFeedbackName() { return juce::String("Chorus Feedback %"); }
 auto getChorusrMixName() { return juce::String("Chorus Mix %"); }
 
+//** OverDrivePramsNameFunc**//
+auto getOverDriveSaturtationName() { return juce::String("OverDrive Saturation"); }
+
 //==============================================================================
 ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -51,7 +54,10 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &ChorusDepthPercent,
         &ChorusCenterDelayMs,
         &ChorusFeedbackPercet,
-        &ChorusMixPercent
+        &ChorusMixPercent,
+
+        //OverDrive
+        &OverDriveSaturation
     };
 
     auto floatNameFuncs = std::array{          //floatNameFuncs pointers
@@ -67,7 +73,10 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getChorusDepthName,
         &getChorusCenterDelayName,
         &getChorusFeedbackName,
-        &getChorusrMixName
+        &getChorusrMixName,
+
+        //overdrive
+        &getOverDriveSaturtationName
     };
 
     for (size_t i = 0; i < floatParams.size(); i++)
@@ -326,8 +335,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
     ));
 
     //*****************************************************************************************************//
-
-
+    //=====================================================================================================//
+     /*
+      OverDrive:
+      drive:1-100
+    */
+    name = getOverDriveSaturtationName();
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{name,versionHint},
+        name,
+        juce::NormalisableRange(1.f,100.f,0.1f,1.f),
+        1.f,
+        ""
+    ));
 
 
 

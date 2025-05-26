@@ -107,6 +107,11 @@ public:
     juce::AudioParameterFloat* ChorusMixPercent = nullptr;
     //** added pointers for cached parameters above **//
 
+    //** added pointers for cached parameters above **//
+    juce::AudioParameterFloat* OverDriveSaturation = nullptr;
+    //** added pointers for cached parameters above **//
+
+
 
 private:
     DSP_Order dsporder;
