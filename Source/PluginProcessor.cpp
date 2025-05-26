@@ -26,6 +26,23 @@ auto getChorusrMixName() { return juce::String("Chorus Mix %"); }
 //** OverDrivePramsNameFunc**//
 auto getOverDriveSaturtationName() { return juce::String("OverDrive Saturation"); }
 
+//** LadderFilterPramsNameFunc**//
+auto getLadderFilterModeName() { return juce::String("Ladder Filter Mode"); }
+auto getLadderFilterCutoffFrequencyName() { return juce::String("Ladder Filter Cutoff Hz"); }
+auto getLadderFilterResonanceName() { return juce::String("Ladder Filter Resonance"); }
+auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
+
+auto getLadderFilterChoice() {
+    return juce::StringArray{
+    "LPF12",  // low-pass  12 dB/octave
+    "HPF12",  // high-pass 12 dB/octave
+    "BPF12",  // band-pass 12 dB/octave
+    "LPF24",  // low-pass  24 dB/octave
+    "HPF24",  // high-pass 24 dB/octave
+    "BPF24"   // band-pass 24 dB/octave
+    };
+}
+
 //==============================================================================
 ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -57,7 +74,12 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &ChorusMixPercent,
 
         //OverDrive
-        &OverDriveSaturation
+        &OverDriveSaturation,
+
+        //LadderFilter
+        &LadderFilterCutoffHz,
+        &LadderFilterResonance,
+        &LadderFilterDrive
     };
 
     auto floatNameFuncs = std::array{          //floatNameFuncs pointers
@@ -76,7 +98,12 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getChorusrMixName,
 
         //overdrive
-        &getOverDriveSaturtationName
+        &getOverDriveSaturtationName,
+
+        //LadderFilter
+        &getLadderFilterCutoffFrequencyName,
+        &getLadderFilterResonanceName,
+        &getLadderFilterDriveName
     };
 
     for (size_t i = 0; i < floatParams.size(); i++)
@@ -89,6 +116,11 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
     }
 
     //***********************************PramsPointers and NameFuncPointers and Init*********************************//
+
+    //LadderFilterModePointer
+
+    LadderFilterMode = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(getLadderFilterModeName()));
+    jassert(LadderFilterMode != nullptr);
 }
 
     
@@ -348,6 +380,59 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
         1.f,
         ""
     ));
+
+    //*****************************************************************************************************//
+    //=====================================================================================================//
+     /*
+    ladder filter:
+    mode: LadderFilterMode enum(int)
+    cutoff:hz
+    resonance: 0 to 1
+    drive: 1 - 100
+    */
+
+    name = getLadderFilterModeName();
+    auto choices = getLadderFilterChoice();
+
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        choices,
+        0
+    ));
+    
+
+    //*****************************************************************************************************//
+    name = getLadderFilterCutoffFrequencyName();
+
+   layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        juce::NormalisableRange(20.f, 20000.f, 0.1f, 1.f),
+        20000.f,
+        "Hz"
+    ));
+    
+
+    //*****************************************************************************************************//
+    name = getLadderFilterResonanceName();
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        juce::NormalisableRange(0.f, 1.f, 0.01f, 1.f),
+        0.f,
+        ""
+    ));
+    //*****************************************************************************************************//
+    name = getLadderFilterDriveName();
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        juce::NormalisableRange(1.f, 100.f, 0.1f, 1.f),
+        1.f,
+        ""
+    ));
+
 
 
 

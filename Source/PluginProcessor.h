@@ -107,11 +107,30 @@ public:
     juce::AudioParameterFloat* ChorusMixPercent = nullptr;
     //** added pointers for cached parameters above **//
 
+
+     /*
+      OverDrive:
+      drive:1-100
+    */
+
     //** added pointers for cached parameters above **//
     juce::AudioParameterFloat* OverDriveSaturation = nullptr;
     //** added pointers for cached parameters above **//
 
+    /*
+    ladder filter:
+    mode: LadderFilterMode enum(int)
+    cutoff:hz
+    resonance: 0 to 1
+    drive: 1 - 100
+    */
 
+    //** added pointers for cached parameters above **//
+    juce::AudioParameterChoice* LadderFilterMode = nullptr;
+    juce::AudioParameterFloat* LadderFilterCutoffHz = nullptr;
+    juce::AudioParameterFloat* LadderFilterResonance = nullptr;
+    juce::AudioParameterFloat* LadderFilterDrive = nullptr;
+    //** added pointers for cached parameters above **//
 
 private:
     DSP_Order dsporder;
