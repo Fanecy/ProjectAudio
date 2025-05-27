@@ -164,6 +164,7 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
 
         jassert(*ptrToParams != nullptr);
     }
+    
 }
 
     
@@ -250,7 +251,14 @@ void ProjectAudioAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     Spec.maximumBlockSize = samplesPerBlock;
     Spec.numChannels = getTotalNumInputChannels();
 
-    std::vector<juce::dsp::ProcessorBase*> dps;
+    std::vector<juce::dsp::ProcessorBase*> dps
+    {
+        &phaser,
+        &chorus,
+        &overdrive,
+        &ladderFilter,
+        &generalFilter
+    };
 
     for (auto p : dps )
     {
@@ -560,6 +568,8 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+
+
     auto newDSPOrder = DSP_Order();
     //try pull FIFO
     while (dsporderFifo.pull(newDSPOrder))
@@ -604,10 +614,8 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             jassertfalse;
             break;
 
-
-
         default:
-
+            dspPointers[i] = nullptr;
             break;
         }
     }
@@ -633,21 +641,33 @@ bool ProjectAudioAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProjectAudioAudioProcessor::createEditor()
 {
-    return new ProjectAudioAudioProcessorEditor (*this);
+    //return new ProjectAudioAudioProcessorEditor (*this);
+    juce::Logger::writeToLog("Creating generic editor...");
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
 void ProjectAudioAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
-{
+{//FANE:The function is used to save the old state
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+
+    juce::MemoryOutputStream mos(destData, false); //FANE:Memory output stream that allow to write into destData
+    apvts.state.writeToStream(mos); //FANE: write the state into memoryBlock
 }
 
 void ProjectAudioAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
-{
+{//FANE:AND THIS IS USED TO SET THE STATE LIKE THE OLD ONE
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes); //Fane:get old state
+
+    if (tree.isValid())
+    {
+        apvts.replaceState(tree);  //Fane:set the state like the old one
+    }
 }
 
 
