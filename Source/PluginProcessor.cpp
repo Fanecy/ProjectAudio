@@ -238,10 +238,26 @@ void ProjectAudioAudioProcessor::changeProgramName (int index, const juce::Strin
 }
 
 //==============================================================================
-void ProjectAudioAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void ProjectAudioAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock) //Fane:Happen before play,init
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+
+    // Fane: prepare all DSP
+    juce::dsp::ProcessSpec Spec;
+    Spec.sampleRate = sampleRate;
+    Spec.maximumBlockSize = samplesPerBlock;
+    Spec.numChannels = getTotalNumInputChannels();
+
+    std::vector<juce::dsp::ProcessorBase*> dps;
+
+    for (auto p : dps )
+    {
+        p->prepare(Spec);
+        p->reset();
+    }
+    // Fane:  prepare all DSP
 }
 
 void ProjectAudioAudioProcessor::releaseResources()
