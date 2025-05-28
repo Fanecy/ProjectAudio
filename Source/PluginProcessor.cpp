@@ -568,7 +568,33 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    //save/load parameters for each dspOption
+    // 
+    //phaser
+    phaser.dsp.setRate(PhaserRateHz->get());
+    phaser.dsp.setDepth(PhaserDepthPercent->get());
+    phaser.dsp.setCentreFrequency(PhaserCenterFreqHz->get());
+    phaser.dsp.setFeedback(PhaserFeedbackPercet->get());
+    phaser.dsp.setMix(PhaserMixPercent->get());
 
+    //chorus
+    chorus.dsp.setRate(ChorusRateHz->get());
+    chorus.dsp.setDepth(ChorusDepthPercent->get());
+    chorus.dsp.setCentreDelay(ChorusCenterDelayMs->get());
+    chorus.dsp.setFeedback(ChorusFeedbackPercet->get());
+    chorus.dsp.setMix(ChorusMixPercent->get());
+
+    //overdrive
+    overdrive.dsp.setDrive(OverDriveSaturation->get());
+
+    //ladderfilter
+    ladderFilter.dsp.setMode(static_cast<juce::dsp::LadderFilterMode>(LadderFilterMode->getIndex()));
+    ladderFilter.dsp.setCutoffFrequencyHz(LadderFilterCutoffHz->get());
+    ladderFilter.dsp.setDrive(LadderFilterDrive->get());
+    ladderFilter.dsp.setResonance(LadderFilterResonance->get());
+
+    //save/load parameters for each dspOption
+   
 
     auto newDSPOrder = DSP_Order();
     //try pull FIFO
