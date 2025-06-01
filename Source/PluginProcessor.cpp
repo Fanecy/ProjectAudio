@@ -73,6 +73,17 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
     )
 #endif
 {
+    dsporder =
+    { {
+            DSP_Option::Phase,
+            DSP_Option::Chorus,
+            DSP_Option::Overdrive,
+            DSP_Option::LadderFilter
+        } };
+
+
+
+
     //***********************************PramsPointers and NameFuncPointers and Init*********************************//
     auto floatParams = std::array{         //floatPrams pointers
 
@@ -611,6 +622,7 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     //fill pointers
     DSP_Pointers dspPointers;
+    dspPointers.fill(nullptr);
 
     for (size_t i = 0; i < dspPointers.size(); i++)
     {
@@ -667,10 +679,65 @@ bool ProjectAudioAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProjectAudioAudioProcessor::createEditor()
 {
-    //return new ProjectAudioAudioProcessorEditor (*this);
-    juce::Logger::writeToLog("Creating generic editor...");
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new ProjectAudioAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
+
+//Fane:Used to convert var to DSP_Order and convert DSP_Order to var
+template<>      
+struct juce::VariantConverter <ProjectAudioAudioProcessor::DSP_Order>
+{
+    static ProjectAudioAudioProcessor::DSP_Order fromVar(const juce::var& v) 
+    {
+        using T = ProjectAudioAudioProcessor::DSP_Order;
+        T dspOrder;
+
+        jassert(v.isBinaryData());
+
+        if (v.isBinaryData() == false)
+        {
+            dspOrder.fill(ProjectAudioAudioProcessor::DSP_Option::END_OF_LIST);
+        }
+        else
+        {
+            auto mb = *v.getBinaryData();
+            juce::MemoryInputStream mis(mb, false);
+
+            std::vector<int> arr;
+            while (!mis.isExhausted())
+            {
+                arr.push_back(mis.readInt());
+            }
+
+            jassert(arr.size() == dspOrder.size());
+            
+
+            for (size_t i = 0; i < dspOrder.size(); i++)
+            {
+                dspOrder[i] = static_cast<ProjectAudioAudioProcessor::DSP_Option>(arr[i]);
+            }
+            
+        }
+        return dspOrder;
+    }
+
+    static juce::var toVar(const ProjectAudioAudioProcessor::DSP_Order& d)
+    {
+        juce::MemoryBlock mb;
+
+        {//scoping to boost efficiency,now mos will be gone sooner
+            juce::MemoryOutputStream mos(mb, false);
+
+            for (const auto& v : d)
+            {
+                mos.writeInt(static_cast<int>(v));
+            }
+        }//also,now it is writing to mb correctly
+
+        return mb;
+    }
+};
+
 
 //==============================================================================
 void ProjectAudioAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
@@ -678,6 +745,10 @@ void ProjectAudioAudioProcessor::getStateInformation (juce::MemoryBlock& destDat
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+
+    apvts.state.setProperty("dpsOrder",
+        juce::VariantConverter<ProjectAudioAudioProcessor::DSP_Order>::toVar(dsporder),
+        nullptr);//Fane:set dpsOrder for apvts
 
     juce::MemoryOutputStream mos(destData, false); //FANE:Memory output stream that allow to write into destData
     apvts.state.writeToStream(mos); //FANE: write the state into memoryBlock
@@ -693,6 +764,15 @@ void ProjectAudioAudioProcessor::setStateInformation (const void* data, int size
     if (tree.isValid())
     {
         apvts.replaceState(tree);  //Fane:set the state like the old one
+
+        if (apvts.state.hasProperty("dpsOrder"))
+        {
+            auto order = juce::VariantConverter<ProjectAudioAudioProcessor::DSP_Order>::fromVar(apvts.state.getProperty("dpsOrder")); 
+            //Fane:get dpsOrder from apvts
+        }
+
+        DBG(apvts.state.toXmlString());
+        
     }
 }
 
