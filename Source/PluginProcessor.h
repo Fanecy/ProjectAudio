@@ -188,6 +188,9 @@ private:
         bool bypassed = false;
     };
     using DSP_Pointers = std::array<ProcessState, static_cast<size_t>(DSP_Option::END_OF_LIST)>;//用别名替代指针数组
+
+#define VERYFY_BYPASS_FUNCTIONALITY false // Fane:Macro to test Bypass
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectAudioAudioProcessor)
 };
