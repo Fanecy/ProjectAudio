@@ -89,6 +89,7 @@ public:
     juce::AudioParameterFloat* PhaserCenterFreqHz = nullptr;
     juce::AudioParameterFloat* PhaserFeedbackPercet = nullptr;
     juce::AudioParameterFloat* PhaserMixPercent = nullptr;
+    juce::AudioParameterBool*  PhaserBypass = nullptr;
     //** added pointers for cached parameters above **//
 
      /*
@@ -106,6 +107,7 @@ public:
     juce::AudioParameterFloat* ChorusCenterDelayMs = nullptr;
     juce::AudioParameterFloat* ChorusFeedbackPercet = nullptr;
     juce::AudioParameterFloat* ChorusMixPercent = nullptr;
+    juce::AudioParameterBool*  ChorusBypass = nullptr;
     //** added pointers for cached parameters above **//
 
 
@@ -116,6 +118,7 @@ public:
 
     //** added pointers for cached parameters above **//
     juce::AudioParameterFloat* OverDriveSaturation = nullptr;
+    juce::AudioParameterBool*  OverDriveBypass = nullptr;
     //** added pointers for cached parameters above **//
 
     /*
@@ -131,6 +134,7 @@ public:
     juce::AudioParameterFloat* LadderFilterCutoffHz = nullptr;
     juce::AudioParameterFloat* LadderFilterResonance = nullptr;
     juce::AudioParameterFloat* LadderFilterDrive = nullptr;
+    juce::AudioParameterBool*  LadderFilterBypass = nullptr;
     //** added pointers for cached parameters above **//
 
      /*
@@ -146,6 +150,7 @@ public:
     juce::AudioParameterFloat* GeneralFilterFreqHz = nullptr;
     juce::AudioParameterFloat* GeneralFilterQuality = nullptr;
     juce::AudioParameterFloat* GeneralFilterGain = nullptr;
+    juce::AudioParameterBool* GeneralFilterBypass = nullptr;
      //** added pointers for cached parameters above **//
 
 private:

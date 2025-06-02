@@ -15,22 +15,26 @@ auto getPhaserCenterFreqName() { return juce::String("Phaser Center FreqHz");}
 auto getPhaserDepthName() { return juce::String("Phaser Depth %"); }
 auto getPhaserFeedbackName() { return juce::String("Phaser Feedback %"); }
 auto getPhaserMixName() { return juce::String("Phaser Mix %"); }
+auto getPhaserBypassName() { return juce::String("Phaser Bypass"); }
 
 //** ChorusPramsNameFunc**//
 auto getChorusRateName() { return juce::String("Chorus RateHz"); }
 auto getChorusDepthName() { return juce::String("Chorus Depth %"); }
 auto getChorusCenterDelayName() { return juce::String("Chorus Center Delay Ms"); }
 auto getChorusFeedbackName() { return juce::String("Chorus Feedback %"); }
-auto getChorusrMixName() { return juce::String("Chorus Mix %"); }
+auto getChorusMixName() { return juce::String("Chorus Mix %"); }
+auto getChorusBypassName() { return juce::String("Chorus Bypass"); }
 
 //** OverDrivePramsNameFunc**//
 auto getOverDriveSaturtationName() { return juce::String("OverDrive Saturation"); }
+auto getOverdriveBypassName() { return juce::String("Overdrive Bypass"); }
 
 //** LadderFilterPramsNameFunc**//
 auto getLadderFilterModeName() { return juce::String("Ladder Filter Mode"); }
 auto getLadderFilterCutoffFrequencyName() { return juce::String("Ladder Filter Cutoff Hz"); }
 auto getLadderFilterResonanceName() { return juce::String("Ladder Filter Resonance"); }
 auto getLadderFilterDriveName() { return juce::String("Ladder Filter Drive"); }
+auto getLadderFilterBypassName() { return juce::String("Ladder Filter Bypass"); }
 
 auto getLadderFilterChoice() {
     return juce::StringArray{
@@ -57,6 +61,9 @@ auto getGeneralFilterModeName() { return juce::String("General Filter Mode"); }
 auto getGeneralFilterFreqName() { return juce::String("General Filter Freq Hz"); }
 auto getGeneralFilterQualityName() { return juce::String("General Filter Quality"); }
 auto getGeneralFilterGainName() { return juce::String("General Filter Gain"); }
+auto getGeneralFilterBypassName() { return juce::String("General Filter Bypass"); }
+
+
 
 
 
@@ -112,7 +119,7 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         //GeneralFilter
         &GeneralFilterFreqHz,
         &GeneralFilterQuality,
-        &GeneralFilterGain
+        &GeneralFilterGain,
     };
 
     auto floatNameFuncs = std::array{          //floatNameFuncs pointers
@@ -128,7 +135,7 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getChorusDepthName,
         &getChorusCenterDelayName,
         &getChorusFeedbackName,
-        &getChorusrMixName,
+        &getChorusMixName,
 
         //overdrive
         &getOverDriveSaturtationName,
@@ -176,6 +183,31 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         jassert(*ptrToParams != nullptr);
     }
     
+    //Add Bypass Pointers
+    auto bypassParams = std::array{
+        &PhaserBypass,
+        &ChorusBypass,
+        &OverDriveBypass,
+        &LadderFilterBypass,
+        &GeneralFilterBypass
+    };
+
+    auto bypassNameFuncs = std::array{
+        &getPhaserBypassName,
+        &getChorusBypassName,
+        &getOverdriveBypassName,
+        &getLadderFilterBypassName,
+        &getGeneralFilterBypassName
+    };
+
+    for (size_t i = 0; i < bypassParams.size(); i++)
+    {
+        auto ptrToParams = bypassParams[i];
+
+        *ptrToParams = dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(bypassNameFuncs[i]()));
+
+        jassert(*ptrToParams != nullptr);
+    }
 }
 
     
@@ -385,6 +417,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
     ));
 
     //*****************************************************************************************************//
+    
+    name = getPhaserBypassName();
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        false
+    ));
+    //*****************************************************************************************************//
     //=====================================================================================================//
      /*
       Chorus:
@@ -435,7 +475,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
     ));
 
     //*****************************************************************************************************//
-    name = getChorusrMixName();
+    name = getChorusMixName();
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID{ name,versionHint },
         name,
@@ -444,6 +484,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
         "%"
     ));
 
+    //*****************************************************************************************************//
+    name = getChorusBypassName();
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        false
+    ));
     //*****************************************************************************************************//
     //=====================================================================================================//
      /*
@@ -457,6 +504,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
         juce::NormalisableRange(1.f,100.f,0.1f,1.f),
         1.f,
         ""
+    ));
+    //*****************************************************************************************************//
+    name = getOverdriveBypassName();
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        false
     ));
 
     //*****************************************************************************************************//
@@ -510,6 +564,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
         1.f,
         ""
     ));
+
+    //*****************************************************************************************************//
+    name = getLadderFilterBypassName();
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        false
+    ));
     //*****************************************************************************************************//
     //=====================================================================================================//
 
@@ -558,8 +620,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::
     ));
     //*****************************************************************************************************//
 
+    name = getGeneralFilterBypassName();
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        juce::ParameterID{ name,versionHint },
+        name,
+        false
+    ));
 
-
+    //*****************************************************************************************************//
 
     return layout;
 }
