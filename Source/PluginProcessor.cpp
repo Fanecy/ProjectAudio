@@ -690,30 +690,35 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     //fill pointers
     DSP_Pointers dspPointers;
-    dspPointers.fill(nullptr);
+    dspPointers.fill({});                                     //oldversion: dspPointers.fill(nullptr);
 
     for (size_t i = 0; i < dspPointers.size(); i++)
     {
         switch (dsporder[i])
         {
         case DSP_Option::Phase:
-            dspPointers[i] = &phaser;
+            dspPointers[i].Processor = &phaser;
+            dspPointers[i].bypassed = PhaserBypass->get();
             break;
 
         case DSP_Option::Chorus:
-            dspPointers[i] = &chorus;
+            dspPointers[i].Processor = &chorus;
+            dspPointers[i].bypassed = ChorusBypass->get();
             break;
 
         case DSP_Option::Overdrive:
-            dspPointers[i] = &overdrive;
+            dspPointers[i].Processor = &overdrive;
+            dspPointers[i].bypassed = OverDriveBypass->get();
             break;
 
         case DSP_Option::LadderFilter:
-            dspPointers[i] = &ladderFilter;
+            dspPointers[i].Processor = &ladderFilter;
+            dspPointers[i].bypassed = LadderFilterBypass->get();
             break;
 
         case DSP_Option::GeneralFilter:
-            dspPointers[i] = &generalFilter;
+            dspPointers[i].Processor = &generalFilter;
+            dspPointers[i].bypassed = GeneralFilterBypass->get();
             break;
 
         case DSP_Option::END_OF_LIST:
@@ -721,23 +726,26 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             break;
 
         default:
-            dspPointers[i] = nullptr;
+        {
+            dspPointers[i] = {};
             break;
         }
-    }
-    
-    //now process
-    auto block = juce::dsp::AudioBlock<float>(buffer);
-    auto context = juce::dsp::ProcessContextReplacing<float>(block);
-
-    for (size_t i = 0; i < dspPointers.size(); i++)
-    {
-        if (dspPointers[i] != nullptr)
-        {
-            dspPointers[i]->process(context);
         }
     }
-}
+
+        //now process
+        auto block = juce::dsp::AudioBlock<float>(buffer);
+        auto context = juce::dsp::ProcessContextReplacing<float>(block);
+
+        for (size_t i = 0; i < dspPointers.size(); i++)
+        {
+            if (dspPointers[i].Processor != nullptr)
+            {
+                juce::ScopedValueSetter<bool> svs(context.isBypassed, dspPointers[i].bypassed);
+                dspPointers[i].Processor->process(context);
+            }
+        }
+    }
 
 //==============================================================================
 bool ProjectAudioAudioProcessor::hasEditor() const
@@ -747,8 +755,8 @@ bool ProjectAudioAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProjectAudioAudioProcessor::createEditor()
 {
-    return new ProjectAudioAudioProcessorEditor (*this);
-    //return new juce::GenericAudioProcessorEditor(*this);
+    //return new ProjectAudioAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //Fane:Used to convert var to DSP_Order and convert DSP_Order to var
