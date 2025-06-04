@@ -151,14 +151,16 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getGeneralFilterGainName
     };
 
-    for (size_t i = 0; i < floatParams.size(); i++)
+    /*for (size_t i = 0; i < floatParams.size(); i++)
     {
         auto ptrToParamPtr = floatParams[i];
 
         *ptrToParamPtr = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(floatNameFuncs[i]()));
 
         jassert(*ptrToParamPtr != nullptr);
-    }
+    }*/
+
+    initCachedPtrParam<juce::AudioParameterFloat*>(floatParams, floatNameFuncs);
 
     //***********************************PramsPointers and NameFuncPointers and Init*********************************//
 
@@ -174,14 +176,16 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getGeneralFilterModeName
     };
 
-    for (size_t i = 0; i < choiceParams.size(); i++)
+    /*for (size_t i = 0; i < choiceParams.size(); i++)
     {
         auto ptrToParams = choiceParams[i];
 
         *ptrToParams = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(choiceNameFuncs[i]()));
 
         jassert(*ptrToParams != nullptr);
-    }
+    }*/
+
+    initCachedPtrParam<juce::AudioParameterChoice*>(choiceParams, choiceNameFuncs);
     
     //Add Bypass Pointers
     auto bypassParams = std::array{
@@ -200,14 +204,17 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         &getGeneralFilterBypassName
     };
 
-    for (size_t i = 0; i < bypassParams.size(); i++)
-    {
-        auto ptrToParams = bypassParams[i];
+    //FANE:OLD CODE
+    //for (size_t i = 0; i < bypassParams.size(); i++)
+    //{
+    //   auto ptrToParams = bypassParams[i];
 
-        *ptrToParams = dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(bypassNameFuncs[i]()));
+    //    *ptrToParams = dynamic_cast<juce::AudioParameterBool*>(apvts.getParameter(bypassNameFuncs[i]()));
 
-        jassert(*ptrToParams != nullptr);
-    }
+    //    jassert(*ptrToParams != nullptr);
+    //}
+
+    initCachedPtrParam<juce::AudioParameterBool*>(bypassParams, bypassNameFuncs);
 }
 
     
@@ -694,7 +701,7 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     DSP_Pointers dspPointers;
     dspPointers.fill({});                                     //oldversion: dspPointers.fill(nullptr);
 
-    for (size_t i = 0; i < dspPointers.size(); i++)
+    for (size_t i = 0; i < dspPointers.size(); ++i)
     {
         switch (dsporder[i])
         {
@@ -739,7 +746,7 @@ void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         auto block = juce::dsp::AudioBlock<float>(buffer);
         auto context = juce::dsp::ProcessContextReplacing<float>(block);
 
-        for (size_t i = 0; i < dspPointers.size(); i++)
+        for (size_t i = 0; i < dspPointers.size(); ++i)
         {
             if (dspPointers[i].Processor != nullptr)
             {

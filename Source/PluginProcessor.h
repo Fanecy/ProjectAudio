@@ -191,6 +191,18 @@ private:
 
 #define VERYFY_BYPASS_FUNCTIONALITY false // Fane:Macro to test Bypass
     
+    template <typename ParamType,typename Params,typename Funcs>
+    void initCachedPtrParam(Params paramArray,Funcs funcArray )   //Fane:Template Used to init cachedPtrParams
+    {
+        for (size_t i = 0; i < paramArray.size(); ++i)
+        {
+            auto ptrToParamsPtr = paramArray[i];
+            *ptrToParamsPtr = dynamic_cast<ParamType>(apvts.getParameter(funcArray[i]()));
+            jassert(*ptrToParamsPtr != nullptr);
+        };
+    }
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectAudioAudioProcessor)
 };
+
+
