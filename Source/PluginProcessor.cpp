@@ -80,14 +80,19 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
     )
 #endif
 {
+    /*FANE:OLD CODE:
     dsporder =
     { {
             DSP_Option::Phase,
             DSP_Option::Chorus,
             DSP_Option::Overdrive,
             DSP_Option::LadderFilter
-        } };
+        } };*/
 
+    for (size_t i = 0; i < static_cast<size_t>(DSP_Option::END_OF_LIST); ++i) //fill Order
+    {
+        dsporder[i] = static_cast<DSP_Option>(i);
+    }
 
 
 
@@ -676,6 +681,93 @@ void ProjectAudioAudioProcessor::MonoChannelDSP::UpdateDSPfromParams()
     ladderFilter.dsp.setResonance(p.LadderFilterResonance->get());
 
     //save/load parameters for each dspOption
+
+
+    //Update GeneralFilter Coefficients
+    //4 choices:Peak,Bandpass,Notch,Allpass
+    auto sampleRate = p.getSampleRate();
+    //**Check whether gfParams changed(for Update Coefficients are pricy) **//
+    auto genMode = p.GeneralFilterMode->getIndex();
+    auto genHz = p.GeneralFilterFreqHz->get();
+    auto genQ = p.GeneralFilterQuality->get();
+    auto genGain = p.GeneralFilterGain->get();
+
+    bool filterChanged = false;
+
+    filterChanged |= (filterFreq != genHz);
+    filterChanged |= (filterQ != genQ);
+    filterChanged |= (filterGain != genGain);
+
+    auto updateMode = static_cast<generalFilterMode>(genMode);
+    filterChanged |= (gfMode != updateMode);
+    //**Check whether gfParams changed(for Update Coefficients are pricy) **//
+
+    if (filterChanged) //if changed
+    {
+        //**update stored Values **//
+        gfMode = updateMode;
+        filterFreq = genHz;
+        filterQ = genQ;
+        filterGain = genGain;
+        //**update stored Values **//
+
+        juce::dsp::IIR::Coefficients<float>::Ptr coefficients; //use struct to switch coefficients
+        switch (gfMode)
+        {
+        case ProjectAudioAudioProcessor::generalFilterMode::Peak:
+        {
+            coefficients->makePeakFilter(sampleRate, filterFreq, filterQ, juce::Decibels::decibelsToGain(filterGain));
+                                                    // Convert gain in decibels (dB) to linear gain factor (for multiplication)
+            break;
+        }
+
+        case ProjectAudioAudioProcessor::generalFilterMode::Bandpass:
+        {
+            coefficients->makeBandPass(sampleRate, filterFreq, filterQ);
+            break;
+        }
+
+        case ProjectAudioAudioProcessor::generalFilterMode::Notch:
+        {
+            coefficients->makeNotch(sampleRate, filterFreq, filterQ);
+            break;
+        }
+
+        case ProjectAudioAudioProcessor::generalFilterMode::Allpass:
+        {
+            coefficients->makeAllPass(sampleRate, filterFreq, filterQ);
+            break;
+        }
+
+        case ProjectAudioAudioProcessor::generalFilterMode::END_OF_LIST:
+        {
+            jassertfalse;
+            break;
+        }
+
+        default:
+        {
+            jassertfalse;
+            break;
+        }
+        }
+
+        if (coefficients != nullptr)
+        {
+            //generalFilter                  // 自定义滤波器对象
+            //    └── dsp                      // 处理单元（juce::dsp::IIR::Filter类型）
+            //    └── coefficients        // 系数对象指针（juce::dsp::IIR::Coefficients::Ptr类型）
+            //    └── coefficients   // 实际存储系数的vector容器（std::vector<float>）
+            //    └── size()    // 获取容器大小的方法
+            if (generalFilter.dsp.coefficients->coefficients.size() != coefficients->coefficients.size())
+            {
+                jassertfalse;
+            }
+
+            *generalFilter.dsp.coefficients = *coefficients;
+            generalFilter.reset();
+        }
+    }
 }
 
 void ProjectAudioAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) //Fane£ºused to init fifo

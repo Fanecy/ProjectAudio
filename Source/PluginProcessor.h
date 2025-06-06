@@ -153,6 +153,18 @@ public:
     juce::AudioParameterBool* GeneralFilterBypass = nullptr;
      //** added pointers for cached parameters above **//
 
+    //** add enum for generalFilterMode **//
+    enum class generalFilterMode { //use the IIR filter,so need to aware of Coefficients
+
+        Peak,
+        Bandpass,
+        Notch,
+        Allpass,
+        END_OF_LIST
+
+    };
+    //** add enum for generalFilterMode **//
+
 private:
     DSP_Order dsporder;
 
@@ -194,6 +206,13 @@ private:
         void Process(juce::dsp::AudioBlock<float> block, const DSP_Order& dsporder);
     private:
         ProjectAudioAudioProcessor& p;
+
+        //**default GeneralFilter Params **//
+        generalFilterMode gfMode = generalFilterMode::END_OF_LIST;
+        float filterFreq = 0.f;
+        float filterQ = 0.f;
+        float filterGain = -100.f;
+        //**default GeneralFilter Params,they are outside the range **//
     };
 
     MonoChannelDSP leftChannel{ *this };  //set 2 instances
