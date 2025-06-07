@@ -716,26 +716,26 @@ void ProjectAudioAudioProcessor::MonoChannelDSP::UpdateDSPfromParams()
         {
         case ProjectAudioAudioProcessor::generalFilterMode::Peak:
         {
-            coefficients->makePeakFilter(sampleRate, filterFreq, filterQ, juce::Decibels::decibelsToGain(filterGain));
+            coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, filterFreq, filterQ, juce::Decibels::decibelsToGain(filterGain));
                                                     // Convert gain in decibels (dB) to linear gain factor (for multiplication)
             break;
         }
 
         case ProjectAudioAudioProcessor::generalFilterMode::Bandpass:
         {
-            coefficients->makeBandPass(sampleRate, filterFreq, filterQ);
+            coefficients = juce::dsp::IIR::Coefficients<float>::makeBandPass(sampleRate, filterFreq, filterQ);
             break;
         }
 
         case ProjectAudioAudioProcessor::generalFilterMode::Notch:
         {
-            coefficients->makeNotch(sampleRate, filterFreq, filterQ);
+            coefficients = juce::dsp::IIR::Coefficients<float>::makeNotch(sampleRate, filterFreq, filterQ);
             break;
         }
 
         case ProjectAudioAudioProcessor::generalFilterMode::Allpass:
         {
-            coefficients->makeAllPass(sampleRate, filterFreq, filterQ);
+            coefficients = juce::dsp::IIR::Coefficients<float>::makeAllPass(sampleRate, filterFreq, filterQ);
             break;
         }
 
@@ -986,6 +986,7 @@ void ProjectAudioAudioProcessor::setStateInformation (const void* data, int size
         {
             auto order = juce::VariantConverter<ProjectAudioAudioProcessor::DSP_Order>::fromVar(apvts.state.getProperty("dpsOrder")); 
             //Fane:get dpsOrder from apvts
+            dsporderFifo.push(order);
         }
 
         DBG(apvts.state.toXmlString());
