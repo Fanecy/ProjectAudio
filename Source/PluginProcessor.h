@@ -153,6 +153,31 @@ public:
     juce::AudioParameterBool* GeneralFilterBypass = nullptr;
      //** added pointers for cached parameters above **//
 
+
+    //** added smoother for every parameters  **//
+    juce::SmoothedValue<float>
+        phaserRateHzSmoother,
+        phaserCenterFreqHzSmoother,
+        phaserDepthPercentSmoother,
+        phaserFeedbackPercentSmoother,
+        phaserMixPercentSmoother,
+        chorusRateHzSmoother,
+        chorusDepthPercentSmoother,
+        chorusCenterDelayMsSmoother,
+        chorusFeedbackPercentSmoother,
+        chorusMixPercentSmoother,
+        overdriveSaturationSmoother,
+        ladderFilterCutoffHzSmoother,
+        ladderFilterResonanceSmoother,
+        ladderFilterDriveSmoother,
+        generalFilterFreqHzSmoother,
+        generalFilterQualitySmoother,
+        generalFilterGainSmoother;
+    //** added smoother for every parameters  **//
+   
+    
+
+
     //** add enum for generalFilterMode **//
     enum class generalFilterMode { //use the IIR filter,so need to aware of Coefficients
 
@@ -237,6 +262,15 @@ private:
             jassert(*ptrToParamsPtr != nullptr);
         };
     }
+
+    std::vector<juce::SmoothedValue<float>*> getSmoothers();
+
+    enum class SmootherUpdateMode{
+        initialize,
+        liveInRealtime
+    };
+
+    void UpdateSmoothersByParams(int numSampleToSkip, SmootherUpdateMode init);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectAudioAudioProcessor)
 };
