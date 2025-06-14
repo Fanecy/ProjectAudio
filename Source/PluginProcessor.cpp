@@ -1005,8 +1005,8 @@ bool ProjectAudioAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ProjectAudioAudioProcessor::createEditor()
 {
-    //return new ProjectAudioAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new ProjectAudioAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //Fane:Used to convert var to DSP_Order and convert DSP_Order to var
