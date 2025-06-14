@@ -23,11 +23,25 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget
     bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) { return false; }
 
     void itemDropped(const SourceDetails& dragSourceDetails) {}
+
+    juce::TabBarButton* createTabButton(const juce::String& tabName, int tabIndex) override;
 };
 
-struct ExtendedTabBarButton : juce::TabBarButton
+struct ExtendedTabBarButton : juce::TabBarButton //make draggable tab
 {
+    ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar);
 
+    juce::ComponentDragger dragger;
+
+    void mouseDown(const juce::MouseEvent& e)
+    {
+        dragger.startDraggingComponent(this, e);
+    }
+
+    void mouseDrag(const juce::MouseEvent& e)
+    {
+        dragger.dragComponent(this, e, nullptr);
+    }
 };
 
 //==============================================================================

@@ -31,6 +31,19 @@ static juce::String GetDspOptionName(ProjectAudioAudioProcessor::DSP_Option opti
     }
         return "NO SELECTION";
 }
+
+//==============================================================================
+ExtendedTabBarButton::ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar): juce::TabBarButton(name,ownerBar)
+{
+
+}
+
+//==============================================================================
+juce::TabBarButton* ExtendedTabbedButtonBar::createTabButton(const juce::String& tabName, int tabIndex)
+{
+    return new ExtendedTabBarButton(tabName, *this);
+}
+
 //==============================================================================
 ProjectAudioAudioProcessorEditor::ProjectAudioAudioProcessorEditor (ProjectAudioAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
@@ -89,3 +102,5 @@ void ProjectAudioAudioProcessorEditor::resized()
     bounds.removeFromTop(10);
     tabbedComponent.setBounds(bounds.withHeight(30));
 }
+
+
