@@ -46,11 +46,11 @@ private:
 
 struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget //Fane:whole tabs stuff
 {
-    ExtendedTabbedButtonBar() :juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop) {}; //construct func
+    ExtendedTabbedButtonBar(); //construct func
 
-    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) { return false; }
+    bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) override;
 
-    void itemDropped(const SourceDetails& dragSourceDetails) {}
+    void itemDropped(const SourceDetails& dragSourceDetails) override;
 
     juce::TabBarButton* createTabButton(const juce::String& tabName, int tabIndex) override;
 };
@@ -63,15 +63,9 @@ struct ExtendedTabBarButton : juce::TabBarButton //make one draggable tab
 
     std::unique_ptr<HorizontalConstrainer> constrainer;
 
-    void mouseDown(const juce::MouseEvent& e)
-    {
-        dragger.startDraggingComponent(this, e);
-    }
+    void mouseDown(const juce::MouseEvent& e) override;//重写了虚函数，所以要调用基类,保证原函数功能实现
 
-    void mouseDrag(const juce::MouseEvent& e)
-    {
-        dragger.dragComponent(this, e, constrainer.get());
-    }
+    void mouseDrag(const juce::MouseEvent& e) override;
 };
 
 //==============================================================================

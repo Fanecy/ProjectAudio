@@ -96,6 +96,37 @@ ExtendedTabBarButton::ExtendedTabBarButton(const juce::String& name, juce::Tabbe
 }
 
 //==============================================================================
+ExtendedTabbedButtonBar::ExtendedTabbedButtonBar() :juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop)
+{
+}
+
+//==============================================================================
+bool ExtendedTabbedButtonBar::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
+{
+    return false;
+}
+
+//==============================================================================
+void ExtendedTabbedButtonBar::itemDropped(const SourceDetails& dragSourceDetails)
+{
+}
+
+//==============================================================================
+void ExtendedTabBarButton::mouseDown(const juce::MouseEvent& e)
+{
+    toFront(true);//make sure tab is in front during dragging
+    dragger.startDraggingComponent(this, e);
+    juce::TabBarButton::mouseDown(e); 
+}
+
+//==============================================================================
+void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent& e)
+{
+    dragger.dragComponent(this, e, constrainer.get());
+}
+
+
+//==============================================================================
 juce::TabBarButton* ExtendedTabbedButtonBar::createTabButton(const juce::String& tabName, int tabIndex)
 {
     return new ExtendedTabBarButton(tabName, *this);
