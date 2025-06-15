@@ -33,9 +33,66 @@ static juce::String GetDspOptionName(ProjectAudioAudioProcessor::DSP_Option opti
 }
 
 //==============================================================================
-ExtendedTabBarButton::ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar): juce::TabBarButton(name,ownerBar)
+HorizontalConstrainer::HorizontalConstrainer(std::function<juce::Rectangle<int>()> confinedBoundsGetter, 
+    std::function<juce::Rectangle<int>()> confineeBoundsGetter):
+    boundsToConfineToGetter(std::move(confinedBoundsGetter)),
+    boundsOfConfineeGetter(std::move(confineeBoundsGetter))
 {
 
+}
+
+void HorizontalConstrainer::checkBounds(juce::Rectangle<int>& bounds, const juce::Rectangle<int>& previousBounds, 
+    const juce::Rectangle<int>& limits, bool isStretchingTop, bool isStretchingLeft, bool isStretchingBottom, 
+    bool isStretchingRight)
+{
+    /*
+     'bounds' is the bounding box that we are TRYING to set componentToConfine to.
+     we only want to support horizontal dragging within the TabButtonBar.
+
+     so, retain the existing Y position given to the TabBarButton by the TabbedButtonBar when the button was created.
+     */
+    bounds.setY(previousBounds.getY());
+    /*
+     the X position needs to be limited to the left and right side of the owning TabbedButtonBar.
+     however, to prevent the right side of the TabBarButton from being dragged outside the bounds of the TabbedButtonBar,
+     we must subtract the width of this button from the right side of the TabbedButtonBar
+
+     in order for this to work, we need to know the bounds of both the TabbedButtonBar and the TabBarButton.
+     hence, loose coupling using lambda getter functions via the constructor parameters.
+     Loose coupling is preferred vs tight coupling.
+     */
+
+    if (boundsToConfineToGetter != nullptr &&
+        boundsOfConfineeGetter != nullptr)
+    {
+        auto boundsToConfineTo = boundsToConfineToGetter();
+        auto boundsOfConfinee = boundsOfConfineeGetter();
+
+        bounds.setX(juce::jlimit(boundsToConfineTo.getX(),
+            boundsToConfineTo.getRight() - boundsOfConfinee.getWidth(),
+            bounds.getX())); 
+    }
+    else
+    {
+        bounds.setX(juce::jlimit(limits.getX(),
+            limits.getY(),
+            bounds.getX()));
+    }
+}
+
+//==============================================================================
+ExtendedTabBarButton::ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar): 
+    juce::TabBarButton(name,ownerBar)
+{
+    constrainer = std::make_unique<HorizontalConstrainer>([&ownerBar]() {
+        return ownerBar.getLocalBounds();
+        },
+        [this]() {
+            return this->getBounds();
+        }); //set 2 getters
+    
+    constrainer->setMinimumOnscreenAmounts(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
+    //Fane: set not allowed to move outside of the screen,0xffffffff is a large num in juce
 }
 
 //==============================================================================
