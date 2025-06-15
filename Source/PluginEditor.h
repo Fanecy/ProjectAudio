@@ -44,13 +44,32 @@ private:
     std::function<juce::Rectangle<int>()> boundsOfConfineeGetter; //the content
 };
 
-struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget //Fane:whole tabs stuff
+struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget,juce::DragAndDropContainer //Fane:whole tabs stuff
 {
+
     ExtendedTabbedButtonBar(); //construct func
+
+    /*
+     拖放重新排序的实现方式为：让 TabbedButtonBar 同时作为拖放目标（dragAndDrop Target）和拖放容器（DragAndDropContainer），
+     并监听每个 TabBarButton 上的鼠标事件。
+
+     流程如下：
+     在选项卡（tab）上按下鼠标（mouseDown）。这会让拖放容器（DragAndDropContainer）开始响应鼠标拖动（mouseDrag）事件。
+     首先，当第一个鼠标事件发生时，会调用 itemDragEnter 方法。
+     随着鼠标移动，会调用 itemDragMove() 方法。选项卡按钮（tabBarButtons）受限于 ExtendedTabbedButtonBar 的边界，因此它们永远不会被拖出该边界。
+
+     itemDragMove() 会检查正在拖动的项目的 x 坐标，并将其与其相邻项目的 x 坐标进行比较。
+     如果一个选项卡越过了另一个选项卡的中间位置，就会交换这些选项卡的索引。
+*/
 
     bool isInterestedInDragSource(const SourceDetails& dragSourceDetails) override;
 
+    void itemDragEnter(const SourceDetails& dragSourceDetails) override;
     void itemDropped(const SourceDetails& dragSourceDetails) override;
+    void itemDragMove(const SourceDetails& dragSourceDetails) override;
+    void itemDragExit(const SourceDetails& dragSourceDetails) override;
+
+    void mouseDown(const juce::MouseEvent& e) override;
 
     juce::TabBarButton* createTabButton(const juce::String& tabName, int tabIndex) override;
 };

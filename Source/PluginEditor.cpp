@@ -103,12 +103,105 @@ ExtendedTabbedButtonBar::ExtendedTabbedButtonBar() :juce::TabbedButtonBar(juce::
 //==============================================================================
 bool ExtendedTabbedButtonBar::isInterestedInDragSource(const SourceDetails& dragSourceDetails)
 {
+    if (dynamic_cast<ExtendedTabBarButton*>(dragSourceDetails.sourceComponent.get())) //check if it's ExtendedTabbedButtonBar
+    {
+        return true;
+    }
+
     return false;
 }
 
+
+
 //==============================================================================
-void ExtendedTabbedButtonBar::itemDropped(const SourceDetails& dragSourceDetails)
+void ExtendedTabbedButtonBar::itemDragEnter(const SourceDetails& dragSourceDetails) //enter drag
 {
+    DBG("ExtendedTabbedButtonBar::itemDragEnter");                 
+    juce::DragAndDropTarget::itemDragEnter(dragSourceDetails);      //Fane:call base func
+}
+
+//==============================================================================
+void ExtendedTabbedButtonBar::itemDropped(const SourceDetails& dragSourceDetails) //after item dropped
+{
+    DBG("ExtendedTabbedButtonBar::itemDropped");
+    //find the dropped item,and lock the position in
+
+}
+
+//==============================================================================
+void ExtendedTabbedButtonBar::itemDragMove(const SourceDetails& dragSourceDetails) // during moving
+{
+    DBG("ExtendedTabbedButtonBar::itemDragMove");
+    
+    if (auto tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton*>(dragSourceDetails.sourceComponent.get()))
+    {
+        auto numTabs = getNumTabs();
+        auto tabs = juce::Array<juce::TabBarButton*>();
+        tabs.resize(numTabs);
+        for (size_t i = 0; i < numTabs; i++)
+        {
+            tabs.getReference(i) = getTabButton(i);
+        }       //get all tabs 
+
+        auto idx = tabs.indexOf(tabButtonBeingDragged);
+        if (idx == -1) //check if get index,if not,jassetfalse
+        {
+            DBG("Fail to find tab being dragged in list of tabs");
+            jassertfalse;
+            return;
+        }
+
+        //find the tab that tabButtonBeingDragged is colliding with.
+        //it might be on the right 
+        //it might be on the left
+        //if it's on the right,
+        //if tabBarBeingDragged's x is > [nextTab.getX() + nextTab.getWidth() * 0.5], swap their position
+        auto previousTabIndex = idx - 1;
+        auto nextTabIndex = idx + 1;
+        auto previousTab = getTabButton(previousTabIndex);
+        auto nextTab = getTabButton(nextTabIndex);
+        /*
+        If there is no previousTab, you are in the leftmost position
+        else If there is no nextTab, you are in the right-most position
+        Otherwise you are in the middle of all the tabs.
+            If you are in the middle, you might be switching with the tab on your left, or the tab on
+            your right.
+        */
+        if (previousTab == nullptr && nextTab != nullptr) //most left
+        {
+
+            if (tabButtonBeingDragged->getX() > nextTab->getBounds().getCentreX())
+            {
+                moveTab(idx, nextTabIndex);
+            }
+        }
+        else if (previousTab != nullptr && nextTab == nullptr) //most right
+        {
+            if (tabButtonBeingDragged->getX() < previousTab->getBounds().getCentreX())
+            {
+                moveTab(idx, previousTabIndex);
+            }
+        }
+        else //middle
+        {
+            if (tabButtonBeingDragged->getX() > nextTab->getBounds().getCentreX())
+            {
+                moveTab(idx, nextTabIndex);
+            }
+
+            else if (tabButtonBeingDragged->getX() < previousTab->getBounds().getCentreX())
+            {
+                moveTab(idx, previousTabIndex);
+            }
+        }
+    }
+}
+
+//==============================================================================
+void ExtendedTabbedButtonBar::itemDragExit(const SourceDetails& dragSourceDetails) // end drag
+{
+    DBG("ExtendedTabbedButtonBar::itemDragExit");
+    juce::DragAndDropTarget::itemDragExit(dragSourceDetails);
 }
 
 //==============================================================================
@@ -125,11 +218,23 @@ void ExtendedTabBarButton::mouseDrag(const juce::MouseEvent& e)
     dragger.dragComponent(this, e, constrainer.get());
 }
 
+//==============================================================================
+void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent& e)
+{
+    DBG("etbb MouseDown");
+
+    if (auto tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton*>(e.eventComponent))
+    {
+        startDragging(tabButtonBeingDragged->getTabbedButtonBar().getTitle(), tabButtonBeingDragged);
+    }
+}
 
 //==============================================================================
 juce::TabBarButton* ExtendedTabbedButtonBar::createTabButton(const juce::String& tabName, int tabIndex)
 {
-    return new ExtendedTabBarButton(tabName, *this);
+    auto etbb = std::make_unique<ExtendedTabBarButton>(tabName, *this);
+    etbb->addMouseListener(this, false);
+    return etbb.release();   // return a naked ptr
 }
 
 //==============================================================================
