@@ -72,6 +72,12 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget,
     void mouseDown(const juce::MouseEvent& e) override;
 
     juce::TabBarButton* createTabButton(const juce::String& tabName, int tabIndex) override;
+
+private:
+    //refrac-funcs to simplize funcs above
+    juce::TabBarButton* findDraggedItem(const SourceDetails& dragSourceDetails);
+    int findDraggedItemIndex(const SourceDetails& dragSourceDetails);
+    juce::Array<juce::TabBarButton*> getTabs();
 };
 
 struct ExtendedTabBarButton : juce::TabBarButton //make one draggable tab

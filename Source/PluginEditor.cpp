@@ -125,7 +125,41 @@ void ExtendedTabbedButtonBar::itemDropped(const SourceDetails& dragSourceDetails
 {
     DBG("ExtendedTabbedButtonBar::itemDropped");
     //find the dropped item,and lock the position in
+    resized();//re-put all tabs in bar into position
 
+}
+
+//==============================================================================
+juce::TabBarButton* ExtendedTabbedButtonBar::findDraggedItem(const SourceDetails& dragSourceDetails)
+{
+    return getTabButton(findDraggedItemIndex(dragSourceDetails));
+}
+
+//==============================================================================
+int ExtendedTabbedButtonBar::findDraggedItemIndex(const SourceDetails& dragSourceDetails)
+{
+    if (auto tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton*>(dragSourceDetails.sourceComponent.get()))
+    {
+        auto tabs = getTabs();
+
+        auto idx = tabs.indexOf(tabButtonBeingDragged);
+
+        return idx;
+    }
+    return -1;
+}
+
+//==============================================================================
+juce::Array<juce::TabBarButton*> ExtendedTabbedButtonBar::getTabs()
+{
+    auto numTabs = getNumTabs();
+    auto tabs = juce::Array<juce::TabBarButton*>();
+    tabs.resize(numTabs);
+    for (size_t i = 0; i < numTabs; i++)
+    {
+        tabs.getReference(i) = getTabButton(i);
+    }       //get all tabs 
+    return tabs;
 }
 
 //==============================================================================
@@ -135,15 +169,9 @@ void ExtendedTabbedButtonBar::itemDragMove(const SourceDetails& dragSourceDetail
     
     if (auto tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton*>(dragSourceDetails.sourceComponent.get()))
     {
-        auto numTabs = getNumTabs();
-        auto tabs = juce::Array<juce::TabBarButton*>();
-        tabs.resize(numTabs);
-        for (size_t i = 0; i < numTabs; i++)
-        {
-            tabs.getReference(i) = getTabButton(i);
-        }       //get all tabs 
+        auto tabs = getTabs();
 
-        auto idx = tabs.indexOf(tabButtonBeingDragged);
+        auto idx = findDraggedItemIndex(dragSourceDetails);
         if (idx == -1) //check if get index,if not,jassetfalse
         {
             DBG("Fail to find tab being dragged in list of tabs");
