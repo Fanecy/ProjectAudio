@@ -69,6 +69,14 @@ struct ExtendedTabbedButtonBar : juce::TabbedButtonBar, juce::DragAndDropTarget,
     void itemDragMove(const SourceDetails& dragSourceDetails) override;
     void itemDragExit(const SourceDetails& dragSourceDetails) override;
 
+    struct Listener {      //绑定到drag事件，拖拽中触发
+        virtual ~Listener() = default;
+
+        virtual void tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder) = 0;
+    };
+    void addListener(Listener* l);
+    void removeListener(Listener* l);
+
     void mouseDown(const juce::MouseEvent& e) override;
 
     juce::TabBarButton* createTabButton(const juce::String& tabName, int tabIndex) override;
@@ -78,11 +86,13 @@ private:
     juce::TabBarButton* findDraggedItem(const SourceDetails& dragSourceDetails);
     int findDraggedItemIndex(const SourceDetails& dragSourceDetails);
     juce::Array<juce::TabBarButton*> getTabs();
+
+    juce::ListenerList<Listener> listeners;
 };
 
 struct ExtendedTabBarButton : juce::TabBarButton //make one draggable tab
 {
-    ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar);
+    ExtendedTabBarButton(const juce::String& name, juce::TabbedButtonBar& ownerBar,ProjectAudioAudioProcessor::DSP_Option& option);
 
     juce::ComponentDragger dragger;
 
@@ -91,12 +101,17 @@ struct ExtendedTabBarButton : juce::TabBarButton //make one draggable tab
     void mouseDown(const juce::MouseEvent& e) override;//重写了虚函数，所以要调用基类,保证原函数功能实现
 
     void mouseDrag(const juce::MouseEvent& e) override;
+
+    ProjectAudioAudioProcessor::DSP_Option getOption() const { return option; };
+
+private:
+    ProjectAudioAudioProcessor::DSP_Option option;
 };
 
 //==============================================================================
 /**
 */
-class ProjectAudioAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ProjectAudioAudioProcessorEditor  : public juce::AudioProcessorEditor,ExtendedTabbedButtonBar::Listener
 {
 public:
     ProjectAudioAudioProcessorEditor (ProjectAudioAudioProcessor&);
@@ -105,7 +120,7 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-
+    void tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder) override; //每次顺序改变都会触发
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
