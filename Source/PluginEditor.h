@@ -105,6 +105,7 @@ struct ExtendedTabBarButton : juce::TabBarButton //make one draggable tab
 
     ProjectAudioAudioProcessor::DSP_Option getOption() const { return option; };
 
+    int getBestTabLength(int depth) override;
 private:
     ProjectAudioAudioProcessor::DSP_Option option;
 };
