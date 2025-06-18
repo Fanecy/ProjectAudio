@@ -113,7 +113,9 @@ private:
 //==============================================================================
 /**
 */
-class ProjectAudioAudioProcessorEditor  : public juce::AudioProcessorEditor,ExtendedTabbedButtonBar::Listener
+class ProjectAudioAudioProcessorEditor  : public juce::AudioProcessorEditor,
+    ExtendedTabbedButtonBar::Listener,
+    juce::Timer
 {
 public:
     ProjectAudioAudioProcessorEditor (ProjectAudioAudioProcessor&);
@@ -123,6 +125,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     void tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder) override; //每次顺序改变都会触发
+    void timerCallback() override;//定期会触发
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -131,6 +134,8 @@ private:
     juce::TextButton dspOrderButton{ "random dspOrder" };
 
     ExtendedTabbedButtonBar tabbedComponent;
+
+    void addTabsFromDSPOrder(ProjectAudioAudioProcessor::DSP_Order order);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProjectAudioAudioProcessorEditor)
 };

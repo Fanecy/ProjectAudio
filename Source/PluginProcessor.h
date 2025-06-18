@@ -73,7 +73,7 @@ public:
     using DSP_Order = std::array<DSP_Option, static_cast<size_t>(DSP_Option::END_OF_LIST)>; //用类型别名替代后面一坨Array
 
     SimpleMBComp::Fifo<DSP_Order> dsporderFifo; //Fifo
-
+    SimpleMBComp::Fifo<DSP_Order> storedDspOrderFifo; //stored Fifo Order
     /*
       Phaser:
       Rate: hz

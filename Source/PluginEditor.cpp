@@ -341,9 +341,12 @@ ProjectAudioAudioProcessorEditor::ProjectAudioAudioProcessorEditor (ProjectAudio
         tabbedComponent.clearTabs(); //clear all tabs
 
         for (auto& v : dspOrder) {
+
             auto entry = r.nextInt(range);
             v = static_cast<ProjectAudioAudioProcessor::DSP_Option>(entry);
-            tabbedComponent.addTab(GetNameFromDspOption(v), juce::Colours::white, -1); // -1 meaning put at the end of the list
+            auto name = GetNameFromDspOption(v);
+            DBG("creating tab: " << name);
+            tabbedComponent.addTab(name, juce::Colours::white, -1);// -1 meaning put at the end of the list
         }
 
         
@@ -358,6 +361,7 @@ ProjectAudioAudioProcessorEditor::ProjectAudioAudioProcessorEditor (ProjectAudio
     addAndMakeVisible(tabbedComponent);
 
     tabbedComponent.addListener(this);
+    startTimerHz(30);//call timerCallback() 30 times pre s
     setSize (600, 400);
 }
 
@@ -391,6 +395,37 @@ void ProjectAudioAudioProcessorEditor::resized()
 void ProjectAudioAudioProcessorEditor::tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder)
 {
     audioProcessor.dsporderFifo.push(newOrder);
+}
+
+void ProjectAudioAudioProcessorEditor::timerCallback() //used to store and call dsp order
+{
+    if (audioProcessor.storedDspOrderFifo.getNumAvailableForReading() == 0) //stored empty
+    {
+        return;
+    }
+
+    using T = ProjectAudioAudioProcessor::DSP_Order;
+    T newOrder;
+    newOrder.fill(ProjectAudioAudioProcessor::DSP_Option::END_OF_LIST);
+    auto empty = newOrder;
+    while (audioProcessor.storedDspOrderFifo.pull(newOrder))
+    {
+      ; //do nothing now
+    }
+    if (empty != newOrder)//dont create tabs if empty
+    {
+        addTabsFromDSPOrder(newOrder); 
+    }
+}
+
+void ProjectAudioAudioProcessorEditor::addTabsFromDSPOrder(ProjectAudioAudioProcessor::DSP_Order order)
+{
+    tabbedComponent.clearTabs();
+    for (auto v : order)
+    {
+        tabbedComponent.addTab(GetNameFromDspOption(v),juce::Colours::white,-1);
+    }
+    audioProcessor.dsporderFifo.push(order);
 }
 
 
