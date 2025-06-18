@@ -109,6 +109,13 @@ ExtendedTabBarButton::ExtendedTabBarButton(const juce::String& name, juce::Tabbe
 //==============================================================================
 ExtendedTabbedButtonBar::ExtendedTabbedButtonBar() :juce::TabbedButtonBar(juce::TabbedButtonBar::Orientation::TabsAtTop)
 {
+    /*
+    * used to make the dragged image invisible,so there wont be 2 images
+    */
+    auto image = juce::Image(juce::Image::PixelFormat::SingleChannel, 1, 1, true);
+    auto gfx = juce::Graphics(image);
+    gfx.fillAll(juce::Colours::transparentBlack);
+    draggedImage = juce::ScaledImage(image, 1.0);
 }
 
 //==============================================================================
@@ -293,7 +300,7 @@ void ExtendedTabbedButtonBar::mouseDown(const juce::MouseEvent& e)
 
     if (auto tabButtonBeingDragged = dynamic_cast<ExtendedTabBarButton*>(e.eventComponent))
     {
-        startDragging(tabButtonBeingDragged->getTabbedButtonBar().getTitle(), tabButtonBeingDragged);
+        startDragging(tabButtonBeingDragged->getTabbedButtonBar().getTitle(), tabButtonBeingDragged,draggedImage);
     }
 }
 
