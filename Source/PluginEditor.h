@@ -131,8 +131,6 @@ private:
     // access the processor object that created it.
     ProjectAudioAudioProcessor& audioProcessor;
 
-    juce::TextButton dspOrderButton{ "random dspOrder" };
-
     ExtendedTabbedButtonBar tabbedComponent;
 
     void addTabsFromDSPOrder(ProjectAudioAudioProcessor::DSP_Order order);
