@@ -443,6 +443,80 @@ bool ProjectAudioAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 }
 #endif  
 
+std::vector<juce::RangedAudioParameter*> ProjectAudioAudioProcessor::GetParamsForOption(ProjectAudioAudioProcessor::DSP_Option option)
+{
+    switch (option)
+    {
+    case ProjectAudioAudioProcessor::DSP_Option::Phase:
+    {
+        return
+        {
+            PhaserRateHz,
+            PhaserDepthPercent,
+            PhaserCenterFreqHz,
+            PhaserFeedbackPercet,
+            PhaserMixPercent,
+            PhaserBypass,
+        };
+    }
+        
+    case ProjectAudioAudioProcessor::DSP_Option::Chorus:
+    {
+        return
+        {
+            ChorusRateHz,
+            ChorusDepthPercent,
+            ChorusCenterDelayMs,
+            ChorusFeedbackPercet,
+            ChorusMixPercent,
+            ChorusBypass,
+        };
+    }
+
+    case ProjectAudioAudioProcessor::DSP_Option::Overdrive:
+    {
+        return
+        {
+            OverDriveSaturation,
+            OverDriveBypass,
+        };
+    }
+
+    case ProjectAudioAudioProcessor::DSP_Option::LadderFilter:
+    {
+        return
+        {
+            LadderFilterMode,
+            LadderFilterCutoffHz,
+            LadderFilterResonance,
+            LadderFilterDrive,
+            LadderFilterBypass,
+        };
+    }
+
+    case ProjectAudioAudioProcessor::DSP_Option::GeneralFilter:
+    {
+        return
+        {
+            GeneralFilterMode,
+            GeneralFilterFreqHz,
+            GeneralFilterQuality,
+            GeneralFilterGain,
+            GeneralFilterBypass,
+        };
+    }
+
+    case ProjectAudioAudioProcessor::DSP_Option::END_OF_LIST:
+        jassertfalse;
+        
+    default:
+        jassertfalse;
+    }
+    
+    jassertfalse;
+    return{};
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout ProjectAudioAudioProcessor::createParameterLayout() //Fane:createPrameterLayout
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;

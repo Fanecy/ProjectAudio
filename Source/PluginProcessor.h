@@ -67,6 +67,8 @@ public:
         END_OF_LIST
     };
 
+    std::vector<juce::RangedAudioParameter*> GetParamsForOption(ProjectAudioAudioProcessor::DSP_Option option);
+
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts{ *this,nullptr,"Settings",createParameterLayout() };//Create apvats
 
