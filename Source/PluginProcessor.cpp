@@ -94,7 +94,7 @@ ProjectAudioAudioProcessor::ProjectAudioAudioProcessor()
         dsporder[i] = static_cast<DSP_Option>(i);
     }
 
-
+    storedDspOrderFifo.push(dsporder);
 
     //***********************************PramsPointers and NameFuncPointers and Init*********************************//
     auto floatParams = std::array{         //floatPrams pointers

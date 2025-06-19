@@ -231,33 +231,35 @@ void ExtendedTabbedButtonBar::itemDragMove(const SourceDetails& dragSourceDetail
             If you are in the middle, you might be switching with the tab on your left, or the tab on
             your right.
         */
+        auto centreX = tabButtonBeingDragged->getBounds().getCentreX();
         if (previousTab == nullptr && nextTab != nullptr) //most left
         {
 
-            if (tabButtonBeingDragged->getX() > nextTab->getBounds().getCentreX())
+            if (centreX > nextTab->getX())
             {
                 moveTab(idx, nextTabIndex);
             }
         }
         else if (previousTab != nullptr && nextTab == nullptr) //most right
         {
-            if (tabButtonBeingDragged->getX() < previousTab->getBounds().getCentreX())
+            if (centreX < previousTab->getRight())
             {
                 moveTab(idx, previousTabIndex);
             }
         }
         else //middle
         {
-            if (tabButtonBeingDragged->getX() > nextTab->getBounds().getCentreX())
+            if (centreX > nextTab->getX())
             {
                 moveTab(idx, nextTabIndex);
             }
 
-            else if (tabButtonBeingDragged->getX() < previousTab->getBounds().getCentreX())
+            else if (centreX < previousTab->getRight())
             {
                 moveTab(idx, previousTabIndex);
             }
         }
+        tabButtonBeingDragged->toFront(true);
     }
 }
 
