@@ -336,6 +336,7 @@ ProjectAudioAudioProcessorEditor::ProjectAudioAudioProcessorEditor (ProjectAudio
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     addAndMakeVisible(tabbedComponent);
+    addAndMakeVisible(dspGUI);
 
     tabbedComponent.addListener(this);
     startTimerHz(30);//call timerCallback() 30 times pre s
@@ -365,7 +366,8 @@ void ProjectAudioAudioProcessorEditor::resized()
 
     auto bounds = getLocalBounds();
     bounds.removeFromTop(10);
-    tabbedComponent.setBounds(bounds.withHeight(30));
+    tabbedComponent.setBounds(bounds.removeFromTop(30));
+    dspGUI.setBounds(bounds);
 }
 
 void ProjectAudioAudioProcessorEditor::tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder)
