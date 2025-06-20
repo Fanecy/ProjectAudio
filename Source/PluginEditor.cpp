@@ -372,6 +372,7 @@ void ProjectAudioAudioProcessorEditor::resized()
 
 void ProjectAudioAudioProcessorEditor::tabOrderChanged(ProjectAudioAudioProcessor::DSP_Order newOrder)
 {
+    rebuildInterface();
     audioProcessor.dsporderFifo.push(newOrder);
 }
 
@@ -403,7 +404,126 @@ void ProjectAudioAudioProcessorEditor::addTabsFromDSPOrder(ProjectAudioAudioProc
     {
         tabbedComponent.addTab(GetNameFromDspOption(v),juce::Colours::white,-1);
     }
+    rebuildInterface();
     audioProcessor.dsporderFifo.push(order);
 }
 
+void ProjectAudioAudioProcessorEditor::rebuildInterface()
+{
+    auto currentTabIndex = tabbedComponent.getCurrentTabIndex();
+    auto currentTab = tabbedComponent.getTabButton(currentTabIndex);
 
+    if (auto etbb = dynamic_cast<ExtendedTabBarButton*>(currentTab))
+    {
+        auto option = etbb->getOption();
+        auto params = audioProcessor.GetParamsForOption(option);
+
+        jassert(!params.empty());
+        dspGUI.rebuildInterface(params);                              
+    }
+
+    
+}
+
+void DSP_GUI::resized()
+{
+    auto bounds = getBounds();
+
+    if (!buttons.empty())  //set button size
+    {
+        auto buttonArea = bounds.removeFromTop(30);
+        auto w = buttonArea.getWidth() / buttons.size();
+        for (auto& btn : buttons)
+        {
+            btn->setBounds(buttonArea.removeFromLeft(static_cast<int>(w)));
+        }
+    }
+
+    if (!comboBoxes.empty())  //set comboBox size
+    {
+        auto boxArea = bounds.removeFromLeft(bounds.getWidth() / 4);
+        auto h = juce::jmin(static_cast<int>(boxArea.getHeight() / comboBoxes.size()),30);
+        for (auto& b : comboBoxes)
+        {
+            b->setBounds(boxArea.removeFromTop(static_cast<int>(h)));
+        }
+    }
+
+    if (!sliders.empty())  //set slider size
+    {
+        auto w = bounds.getWidth() / sliders.size();
+        for (auto& slider : sliders)
+        {
+            slider->setBounds(bounds.removeFromLeft(static_cast<int>(w)));
+        }
+    }
+
+
+
+}
+
+void DSP_GUI::paint(juce::Graphics& g)
+{
+    g.fillAll(juce::Colours::blueviolet);
+}
+
+void DSP_GUI::rebuildInterface(std::vector<juce::RangedAudioParameter*> params)
+{
+    //when rebuild,first clear components from before
+    sliderAttachments.clear();
+    comboBoxAttachments.clear();
+    buttonAttachments.clear();
+
+    sliders.clear();
+    comboBoxes.clear();
+    buttons.clear();
+
+    for (size_t i = 0; i < params.size(); i++)
+    {
+        auto p = params[i];
+
+        if (auto* choice = dynamic_cast<juce::AudioParameterChoice*>(p)) // make box
+        {
+            comboBoxes.push_back(std::make_unique<juce::ComboBox>());
+            auto& cb = *comboBoxes.back();
+            cb.addItemList(choice->choices,1); //get all choices
+
+            comboBoxAttachments.push_back(std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
+                (processor.apvts,p->getName(100), cb));//attach box with a param
+        }
+        else if (auto* toggle = dynamic_cast<juce::AudioParameterBool*>(p)) //make toggle
+        {
+            buttons.push_back(std::make_unique<juce::ToggleButton>("Bypass"));
+            auto& btn = *buttons.back();
+            
+            buttonAttachments.push_back(std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
+                (processor.apvts,p->getName(100),btn));
+        }
+        else //make sliders(AudioParameterFloat or AudioParameterInt)
+        {
+            sliders.push_back(std::make_unique<juce::Slider>());
+            auto& slider = *sliders.back();
+            
+            slider.setSliderStyle(juce::Slider::SliderStyle::LinearVertical);
+            sliderAttachments.push_back(std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+                (processor.apvts,p->getName(100),slider));
+        }
+    }
+
+    for (auto& box : comboBoxes) //add components on viewport 
+    {
+        addAndMakeVisible(box.get());
+    }
+
+    for (auto& button : buttons)
+    {
+        addAndMakeVisible(button.get());
+    }
+
+    for (auto& slider : sliders)
+    {
+        addAndMakeVisible(slider.get());
+    }
+
+    resized(); 
+}
