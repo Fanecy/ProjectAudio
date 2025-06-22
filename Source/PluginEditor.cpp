@@ -471,7 +471,7 @@ void DSP_GUI::resized()
 
 void DSP_GUI::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::blueviolet);
+    g.fillAll(juce::Colours::black);
 }
 
 void DSP_GUI::rebuildInterface(std::vector<juce::RangedAudioParameter*> params)
