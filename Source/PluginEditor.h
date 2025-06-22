@@ -124,7 +124,7 @@ struct DSP_GUI:juce::Component
     void rebuildInterface(std::vector<juce::RangedAudioParameter*> params);
 
     ProjectAudioAudioProcessor& processor;
-    std::vector<std::unique_ptr<juce::Slider>> sliders;
+    std::vector<std::unique_ptr<RotarySliderWithLabels>> sliders;
     std::vector<std::unique_ptr<juce::ComboBox>> comboBoxes;
     std::vector<std::unique_ptr<juce::Button>> buttons;
 
