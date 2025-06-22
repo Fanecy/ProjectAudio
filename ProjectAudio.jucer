@@ -5,6 +5,19 @@
               cppLanguageStandard="20">
   <MAINGROUP id="XAHHIq" name="ProjectAudio">
     <GROUP id="{DB0DA15E-8F50-E95F-7813-B097E3B543A9}" name="Source">
+      <GROUP id="{61BE8143-42EA-246B-56C0-ABB238C01812}" name="GUI">
+        <FILE id="Gbzd2l" name="CustomButtons.cpp" compile="1" resource="0"
+              file="SimpleMultiBandComp/Source/GUI/CustomButtons.cpp"/>
+        <FILE id="VYhUH6" name="CustomButtons.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/GUI/CustomButtons.h"/>
+        <FILE id="Jhxbqg" name="LookAndFeel.cpp" compile="1" resource="0" file="SimpleMultiBandComp/Source/GUI/LookAndFeel.cpp"/>
+        <FILE id="xpD4a0" name="LookAndFeel.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/GUI/LookAndFeel.h"/>
+        <FILE id="W0p6bO" name="RotarySliderWithLabels.cpp" compile="1" resource="0"
+              file="SimpleMultiBandComp/Source/GUI/RotarySliderWithLabels.cpp"/>
+        <FILE id="TqtVHQ" name="RotarySliderWithLabels.h" compile="0" resource="0"
+              file="SimpleMultiBandComp/Source/GUI/RotarySliderWithLabels.h"/>
+        <FILE id="Y4lgvx" name="Utilities.cpp" compile="1" resource="0" file="SimpleMultiBandComp/Source/GUI/Utilities.cpp"/>
+        <FILE id="AZ3d57" name="Utilities.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/GUI/Utilities.h"/>
+      </GROUP>
       <GROUP id="{E3662035-8812-F706-B6C1-AC7D3E604D9A}" name="DSP">
         <FILE id="FukqeN" name="Fifo.h" compile="0" resource="0" file="SimpleMultiBandComp/Source/DSP/Fifo.h"/>
       </GROUP>

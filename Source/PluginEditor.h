@@ -111,9 +111,11 @@ private:
 };
 
 //==============================================================================
+struct RotarySliderWithLabels;
+//==============================================================================
 struct DSP_GUI:juce::Component
 {
-    DSP_GUI(ProjectAudioAudioProcessor& p) : processor(p){}
+    DSP_GUI(ProjectAudioAudioProcessor& p);
 
     void resized() override;
 
